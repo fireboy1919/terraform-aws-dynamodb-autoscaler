@@ -27,6 +27,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_iam_role" "autoscaler" {
+  count  = "${var.enabled == "true" ? 1 : 0}"
   name               = "${module.default_label.id}${var.delimiter}autoscaler"
   assume_role_policy = "${data.aws_iam_policy_document.assume_role.json}"
 }
@@ -49,7 +50,7 @@ data "aws_iam_policy_document" "autoscaler" {
 resource "aws_iam_role_policy" "autoscaler" {
   count  = "${var.enabled == "true" ? 1 : 0}"
   name   = "${module.default_label.id}${var.delimiter}autoscaler${var.delimiter}dynamodb"
-  role   = "${aws_iam_role.autoscaler.id}"
+  role   = "${aws_iam_role.autoscaler.unique_id}"
   policy = "${data.aws_iam_policy_document.autoscaler.json}"
 }
 
@@ -72,7 +73,7 @@ data "aws_iam_policy_document" "autoscaler_cloudwatch" {
 resource "aws_iam_role_policy" "autoscaler_cloudwatch" {
   count  = "${var.enabled == "true" ? 1 : 0}"
   name   = "${module.default_label.id}${var.delimiter}autoscaler${var.delimiter}cloudwatch"
-  role   = "${aws_iam_role.autoscaler.id}"
+  role   = "${aws_iam_role.autoscaler.unique_id}"
   policy = "${data.aws_iam_policy_document.autoscaler_cloudwatch.json}"
 }
 
